@@ -1,6 +1,7 @@
 import pygame
 
 window = pygame.display.set_mode((784, 784))
+pygame.display.set_caption("chess4py")
 board_img = pygame.image.load('rect-8x8.png')
 selected_sqr_img = pygame.image.load('selected-square.png')
 available_sqr_img = pygame.image.load('available-square.png')
@@ -31,7 +32,7 @@ class Piece:
 
 		window.blit(self.img, (self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height))
 
-	def update(self, event):
+	def update(self, event, pieces_matrix):
 		self.sqr = pygame.Rect(self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
 		moves = self.available_moves(pieces_matrix)
 
@@ -46,8 +47,11 @@ class Piece:
 					sqr = pygame.Rect(move[1] * sqr_size['x'] + border_width, move[0] * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
 
 					if sqr.collidepoint(pygame.mouse.get_pos()):
+						tmp = pieces_matrix[self.y][self.x]
+						pieces_matrix[self.y][self.x] = None
 						self.y = move[0]
 						self.x = move[1]
+						pieces_matrix[self.y][self.x] = tmp
 					self.selected = False
 
 
@@ -114,7 +118,7 @@ while running:
 		piece.draw(pieces_matrix)
 
 	for piece in pieces:
-		piece.update(event)
+		piece.update(event, pieces_matrix)
 
 	pygame.display.update()
 
