@@ -21,20 +21,20 @@ class Piece:
 		self.img = pygame.image.load(f'{color}-{piece_type}.png')
 		self.img = pygame.transform.scale(self.img, (sqr_size['x'], sqr_size['y']))
 
-	def draw(self, pieces_matrix):
+	def draw(self, board):
 		if self.selected:
 			window.blit(selected_sqr_img, (self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height))
 
-			moves = self.available_moves(pieces_matrix)
+			moves = self.available_moves(board)
 
 			for move in moves:
 				window.blit(available_sqr_img, (move[1] * sqr_size['x'] + border_width, move[0] * sqr_size['y'] + border_height))
 
 		window.blit(self.img, (self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height))
 
-	def update(self, event, pieces_matrix):
+	def update(self, event, board):
 		self.sqr = pygame.Rect(self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
-		moves = self.available_moves(pieces_matrix)
+		moves = self.available_moves(board)
 
 		if event == None:
 			return
@@ -47,42 +47,42 @@ class Piece:
 					sqr = pygame.Rect(move[1] * sqr_size['x'] + border_width, move[0] * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
 
 					if sqr.collidepoint(pygame.mouse.get_pos()):
-						tmp = pieces_matrix[self.y][self.x]
-						pieces_matrix[self.y][self.x] = None
+						tmp = board[self.y][self.x]
+						board[self.y][self.x] = None
 						self.y = move[0]
 						self.x = move[1]
-						pieces_matrix[self.y][self.x] = tmp
+						board[self.y][self.x] = tmp
 					self.selected = False
 
 
 	# Returns the available moves a piece can do in the form [(y, x)]
-	def available_moves(self, pieces_matrix):
+	def available_moves(self, board):
 		return []
 
 class Rook(Piece):
-	def available_moves(self, pieces_matrix):
+	def available_moves(self, board):
 		moves = []
 
 		for y in range(self.y + 1, 8):
-			if pieces_matrix[y][self.x] == None:
+			if board[y][self.x] == None:
 				moves.append((y, self.x))
 			else:
 				break
 
 		for y in range(self.y - 1, -1, -1):
-			if pieces_matrix[y][self.x] == None:
+			if board[y][self.x] == None:
 				moves.append((y, self.x))
 			else:
 				break
 
 		for x in range(self.x + 1, 8):
-			if pieces_matrix[self.y][x] == None:
+			if board[self.y][x] == None:
 				moves.append((self.y, x))
 			else:
 				break
 
 		for x in range(self.x - 1, -1, -1):
-			if pieces_matrix[self.y][x] == None:
+			if board[self.y][x] == None:
 				moves.append((self.y, x))
 			else:
 				break
@@ -95,15 +95,15 @@ pieces = [
 	Rook(7, 0, 'rook', 'white'),
 	Rook(7, 7, 'rook', 'white')
 ]
-pieces_matrix = []
+board = []
 
 for y in range(0, 8):
-	pieces_matrix.append([])
+	board.append([])
 	for x in range(0, 8):
-		pieces_matrix[y].append(None)
+		board[y].append(None)
 
 for piece in pieces:
-	pieces_matrix[piece.y][piece.x] = piece
+	board[piece.y][piece.x] = piece
 
 running = True
 while running:
@@ -115,10 +115,10 @@ while running:
 	window.blit(board_img, (0, 0))
 
 	for piece in pieces:
-		piece.draw(pieces_matrix)
+		piece.draw(board)
 
 	for piece in pieces:
-		piece.update(event, pieces_matrix)
+		piece.update(event, board)
 
 	pygame.display.update()
 
