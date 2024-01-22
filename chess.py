@@ -34,7 +34,6 @@ class Piece:
 
 	def update(self, event, board):
 		self.sqr = pygame.Rect(self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
-		moves = self.available_moves(board)
 
 		if event == None:
 			return
@@ -43,6 +42,8 @@ class Piece:
 			if self.sqr.collidepoint(pygame.mouse.get_pos()):
 				self.selected = not self.selected
 			elif self.selected:
+				moves = self.available_moves(board)
+
 				for move in moves:
 					sqr = pygame.Rect(move[1] * sqr_size['x'] + border_width, move[0] * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
 
@@ -89,11 +90,41 @@ class Rook(Piece):
 
 		return moves
 
+class Knight(Piece):
+	def available_moves(self, board):
+		moves = []
+		# I'm too lazy to develop an algorithm for this...
+		hardcoded_moves = [
+			(self.y + 2, self.x - 1),
+			(self.y + 2, self.x + 1),
+
+			(self.y - 1, self.x + 2),
+			(self.y + 1, self.x + 2),
+
+			(self.y - 2, self.x + 1),
+			(self.y - 2, self.x - 1),
+
+			(self.y + 1, self.x - 2),
+			(self.y - 1, self.x - 2)
+		]
+
+		for move in hardcoded_moves:
+			if (move[0] <= 7 and move[0] >= 0) and (move[1] <= 7 and move[1] >= 0):
+				if board[move[0]][move[1]] == None:
+					moves.append(move)
+
+		return moves
+
 pieces = [
 	Rook(0, 0, 'rook', 'black'),
 	Rook(0, 7, 'rook', 'black'),
 	Rook(7, 0, 'rook', 'white'),
-	Rook(7, 7, 'rook', 'white')
+	Rook(7, 7, 'rook', 'white'),
+
+	Knight(0, 1, 'knight', 'black'),
+	Knight(0, 6, 'knight', 'black'),
+	Knight(7, 1, 'knight', 'white'),
+	Knight(7, 6, 'knight', 'white')
 ]
 board = []
 
