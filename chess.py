@@ -1,4 +1,10 @@
 import pygame
+import os
+
+window_pos = (50, 50)
+os.environ['SDL_VIDEO_WINDOW_POS'] = f'{window_pos[0]},{window_pos[1]}'
+
+pygame.init()
 
 window = pygame.display.set_mode((784, 784))
 pygame.display.set_caption("chess4py")
@@ -115,6 +121,56 @@ class Knight(Piece):
 
 		return moves
 
+class Bishop(Piece):
+	def available_moves(self, board):
+		moves = []
+
+		y = self.y - 1
+		x = self.x - 1
+		while y >= 0 and x >= 0:
+			if board[y][x] == None:
+				moves.append((y, x))
+			else:
+				break
+
+			y -= 1
+			x -= 1
+
+		y = self.y + 1
+		x = self.x + 1
+		while y <= 7 and x <= 7:
+			if board[y][x] == None:
+				moves.append((y, x))
+			else:
+				break
+
+			y += 1
+			x += 1
+
+		y = self.y + 1
+		x = self.x - 1
+		while y <= 7 and x >= 0:
+			if board[y][x] == None:
+				moves.append((y, x))
+			else:
+				break
+
+			y += 1
+			x -= 1
+
+		y = self.y - 1
+		x = self.x + 1
+		while y >= 0 and x <= 7:
+			if board[y][x] == None:
+				moves.append((y, x))
+			else:
+				break
+
+			y -= 1
+			x += 1
+
+		return moves
+
 pieces = [
 	Rook(0, 0, 'rook', 'black'),
 	Rook(0, 7, 'rook', 'black'),
@@ -124,7 +180,12 @@ pieces = [
 	Knight(0, 1, 'knight', 'black'),
 	Knight(0, 6, 'knight', 'black'),
 	Knight(7, 1, 'knight', 'white'),
-	Knight(7, 6, 'knight', 'white')
+	Knight(7, 6, 'knight', 'white'),
+
+	Bishop(0, 2, 'bishop', 'black'),
+	Bishop(0, 5, 'bishop', 'black'),
+	Bishop(7, 2, 'bishop', 'white'),
+	Bishop(7, 5, 'bishop', 'white')
 ]
 board = []
 
