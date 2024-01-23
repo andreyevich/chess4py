@@ -1,6 +1,7 @@
 import pygame
 import os
 
+# For the ICT lab.
 window_pos = (50, 50)
 os.environ['SDL_VIDEO_WINDOW_POS'] = f'{window_pos[0]},{window_pos[1]}'
 
@@ -8,10 +9,13 @@ pygame.init()
 
 window = pygame.display.set_mode((784, 784))
 pygame.display.set_caption("chess4py")
+
 board_img = pygame.image.load('rect-8x8.png')
 selected_sqr_img = pygame.image.load('selected-square.png')
 available_sqr_img = pygame.image.load('available-square.png')
-sqr_size = {'x': 96, 'y': 96}
+available_capture_img = pygame.image.load('available-capture.png')
+
+sqr_size = 96
 border_width = 8
 border_height = border_width
 
@@ -22,24 +26,21 @@ class Piece:
 		self.type = piece_type
 		self.color = color
 		self.selected = False
-		self.sqr = pygame.Rect(self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
+		self.sqr = pygame.Rect(self.x * sqr_size + border_width, self.y * sqr_size + border_height, sqr_size, sqr_size)
 
 		self.img = pygame.image.load(f'{color}-{piece_type}.png')
-		self.img = pygame.transform.scale(self.img, (sqr_size['x'], sqr_size['y']))
+		self.img = pygame.transform.scale(self.img, (sqr_size, sqr_size))
 
 	def draw(self, board):
 		if self.selected:
-			window.blit(selected_sqr_img, (self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height))
+			window.blit(selected_sqr_img, (self.x * sqr_size + border_width, self.y * sqr_size + border_height))
 
-			moves = self.available_moves(board)
+			self.draw_available_moves(board)
 
-			for move in moves:
-				window.blit(available_sqr_img, (move[1] * sqr_size['x'] + border_width, move[0] * sqr_size['y'] + border_height))
-
-		window.blit(self.img, (self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height))
+		window.blit(self.img, (self.x * sqr_size + border_width, self.y * sqr_size + border_height))
 
 	def update(self, event, board):
-		self.sqr = pygame.Rect(self.x * sqr_size['x'] + border_width, self.y * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
+		self.sqr = pygame.Rect(self.x * sqr_size + border_width, self.y * sqr_size + border_height, sqr_size, sqr_size)
 
 		if event == None:
 			return
@@ -51,14 +52,14 @@ class Piece:
 				moves = self.available_moves(board)
 
 				for move in moves:
-					sqr = pygame.Rect(move[1] * sqr_size['x'] + border_width, move[0] * sqr_size['y'] + border_height, sqr_size['x'], sqr_size['y'])
+					sqr = pygame.Rect(move[1] * sqr_size + border_width, move[0] * sqr_size + border_height, sqr_size, sqr_size)
 
 					if sqr.collidepoint(pygame.mouse.get_pos()):
-						tmp = board[self.y][self.x]
 						board[self.y][self.x] = None
 						self.y = move[0]
 						self.x = move[1]
-						board[self.y][self.x] = tmp
+						board[self.y][self.x] = self
+
 				self.selected = False
 			else:
 				self.selected = False
@@ -67,6 +68,10 @@ class Piece:
 	# Returns the available moves a piece can do in the form [(y, x)]
 	def available_moves(self, board):
 		return []
+
+	def draw_available_moves(self, board):
+		for move in self.available_moves(board):
+			window.blit(available_sqr_img, (move[1] * sqr_size + border_width, move[0] * sqr_size + border_height))
 
 class Rook(Piece):
 	def available_moves(self, board):
