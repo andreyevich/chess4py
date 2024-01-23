@@ -171,6 +171,18 @@ class Bishop(Piece):
 
 		return moves
 
+class Queen(Piece):
+	def available_moves(self, board):
+		moves = []
+
+		rook = Rook(self.y, self.x, 'rook', self.color)
+		bishop = Bishop(self.y, self.x, 'bishop', self.color)
+
+		moves.extend(rook.available_moves(board))
+		moves.extend(bishop.available_moves(board))
+
+		return moves
+
 pieces = [
 	Rook(0, 0, 'rook', 'black'),
 	Rook(0, 7, 'rook', 'black'),
@@ -185,7 +197,10 @@ pieces = [
 	Bishop(0, 2, 'bishop', 'black'),
 	Bishop(0, 5, 'bishop', 'black'),
 	Bishop(7, 2, 'bishop', 'white'),
-	Bishop(7, 5, 'bishop', 'white')
+	Bishop(7, 5, 'bishop', 'white'),
+
+	Queen(0, 3, 'queen', 'black'),
+	Queen(7, 3, 'queen', 'white')
 ]
 board = []
 
