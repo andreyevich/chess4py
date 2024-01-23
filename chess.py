@@ -183,6 +183,30 @@ class Queen(Piece):
 
 		return moves
 
+class King(Piece):
+	def available_moves(self, board):
+		moves = []
+
+		# I'm too lazy to code an algorithm here...
+		hardcoded_moves = [
+			(self.y - 1, self.x),
+			(self.y + 1, self.x),
+			(self.y, self.x - 1),
+			(self.y, self.x + 1),
+
+			(self.y + 1, self.x - 1),
+			(self.y + 1, self.x + 1),
+			(self.y - 1, self.x + 1),
+			(self.y - 1, self.x - 1)
+		]
+
+		for move in hardcoded_moves:
+			if (move[0] <= 7 and move[0] >= 0) and (move[1] <= 7 and move[1] >= 0):
+				if board[move[0]][move[1]] == None:
+					moves.append(move)
+
+		return moves
+
 pieces = [
 	Rook(0, 0, 'rook', 'black'),
 	Rook(0, 7, 'rook', 'black'),
@@ -200,7 +224,10 @@ pieces = [
 	Bishop(7, 5, 'bishop', 'white'),
 
 	Queen(0, 3, 'queen', 'black'),
-	Queen(7, 3, 'queen', 'white')
+	Queen(7, 3, 'queen', 'white'),
+
+	King(0, 4, 'king', 'black'),
+	King(7, 4, 'king', 'white')
 ]
 board = []
 
