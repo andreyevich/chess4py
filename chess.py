@@ -59,7 +59,9 @@ class Piece:
 						self.y = move[0]
 						self.x = move[1]
 						board[self.y][self.x] = tmp
-					self.selected = False
+				self.selected = False
+			else:
+				self.selected = False
 
 
 	# Returns the available moves a piece can do in the form [(y, x)]
@@ -207,6 +209,20 @@ class King(Piece):
 
 		return moves
 
+class Pawn(Piece):
+	def available_moves(self, board):
+		moves = []
+		direction = 1
+
+		if self.color == 'white':
+			direction = -direction
+
+		if self.y + direction >=0 and self.y + direction <= 7:
+			if board[self.y + direction][self.x] == None:
+				moves.append((self.y + direction, self.x))
+
+		return moves
+
 pieces = [
 	Rook(0, 0, 'rook', 'black'),
 	Rook(0, 7, 'rook', 'black'),
@@ -229,6 +245,11 @@ pieces = [
 	King(0, 4, 'king', 'black'),
 	King(7, 4, 'king', 'white')
 ]
+
+for p in range(0, 8):
+	pieces.append(Pawn(1, p, 'pawn', 'black'))
+	pieces.append(Pawn(6, p, 'pawn', 'white'))
+
 board = []
 
 for y in range(0, 8):
