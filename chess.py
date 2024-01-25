@@ -226,6 +226,13 @@ class Pawn(Piece):
 			if board[self.y + direction][self.x] == None:
 				moves.append((self.y + direction, self.x))
 
+		if self.color == 'white':
+			if self.y == 6 and board[self.y - 2][self.x] == None:
+				moves.append((self.y - 2, self.x))
+		elif self.color == 'black':
+			if self.y == 1 and board[self.y + 2][self.x] == None:
+				moves.append((self.y + 2, self.x))
+
 		return moves
 
 pieces = [
