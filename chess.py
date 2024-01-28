@@ -19,274 +19,312 @@ sqr_size = 96
 border_width = 8
 border_height = border_width
 
+
 class Piece:
-	def __init__(self, y, x, piece_type, color):
-		self.y = y
-		self.x = x
-		self.type = piece_type
-		self.color = color
-		self.selected = False
-		self.sqr = pygame.Rect(self.x * sqr_size + border_width, self.y * sqr_size + border_height, sqr_size, sqr_size)
+    def __init__(self, y, x, piece_type, color):
+        self.y = y
+        self.x = x
+        self.type = piece_type
+        self.color = color
+        self.selected = False
+        self.sqr = pygame.Rect(self.x * sqr_size + border_width,
+                               self.y * sqr_size + border_height, sqr_size, sqr_size)
 
-		self.img = pygame.image.load(f'{color}-{piece_type}.png')
-		self.img = pygame.transform.scale(self.img, (sqr_size, sqr_size))
+        self.img = pygame.image.load(f'{color}-{piece_type}.png')
+        self.img = pygame.transform.scale(self.img, (sqr_size, sqr_size))
 
-	def draw(self, board):
-		if self.selected:
-			window.blit(selected_sqr_img, (self.x * sqr_size + border_width, self.y * sqr_size + border_height))
+    def draw(self, board):
+        if self.selected:
+            window.blit(selected_sqr_img, (self.x * sqr_size +
+                        border_width, self.y * sqr_size + border_height))
 
-			self.draw_available_moves(board)
+            self.draw_available_moves(board)
 
-		window.blit(self.img, (self.x * sqr_size + border_width, self.y * sqr_size + border_height))
+        window.blit(self.img, (self.x * sqr_size + border_width,
+                    self.y * sqr_size + border_height))
 
-	def update(self, event, board):
-		self.sqr = pygame.Rect(self.x * sqr_size + border_width, self.y * sqr_size + border_height, sqr_size, sqr_size)
+    def update(self, event, board):
+        global turn
 
-		if event == None:
-			return
+        if turn != self.color:
+            return
 
-		if event.type == pygame.MOUSEBUTTONDOWN:
-			if self.sqr.collidepoint(pygame.mouse.get_pos()):
-				self.selected = not self.selected
-			elif self.selected:
-				moves = self.available_moves(board)
+        self.sqr = pygame.Rect(self.x * sqr_size + border_width,
+                               self.y * sqr_size + border_height, sqr_size, sqr_size)
 
-				for move in moves:
-					sqr = pygame.Rect(move[1] * sqr_size + border_width, move[0] * sqr_size + border_height, sqr_size, sqr_size)
+        if event == None:
+            return
 
-					if sqr.collidepoint(pygame.mouse.get_pos()):
-						board[self.y][self.x] = None
-						self.y = move[0]
-						self.x = move[1]
-						board[self.y][self.x] = self
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.sqr.collidepoint(pygame.mouse.get_pos()):
+                self.selected = not self.selected
+            elif self.selected:
+                moves = self.available_moves(board)
 
-				self.selected = False
-			else:
-				self.selected = False
+                for move in moves:
+                    sqr = pygame.Rect(move[1] * sqr_size + border_width,
+                                      move[0] * sqr_size + border_height, sqr_size, sqr_size)
 
+                    if sqr.collidepoint(pygame.mouse.get_pos()):
+                        board[self.y][self.x] = None
+                        self.y = move[0]
+                        self.x = move[1]
 
-	# Returns the available moves a piece can do in the form [(y, x)]
-	def available_moves(self, board):
-		return []
+                        if move[2] == 'capture':
+                            pieces.remove(board[self.y][self.x])
 
-	def draw_available_moves(self, board):
-		for move in self.available_moves(board):
-			window.blit(available_sqr_img, (move[1] * sqr_size + border_width, move[0] * sqr_size + border_height))
+                        board[self.y][self.x] = self
+
+                        if turn == 'white':
+                            turn = 'black'
+                        elif turn == 'black':
+                            turn = 'white'
+
+                self.selected = False
+            else:
+                self.selected = False
+
+    # Returns the available moves a piece can do in the form [(y, x, type)].
+    # type - move or capture.
+
+    def available_moves(self, board):
+        return []
+
+    def draw_available_moves(self, board):
+        for move in self.available_moves(board):
+            if move[2] == 'move':
+                window.blit(
+                    available_sqr_img, (move[1] * sqr_size + border_width, move[0] * sqr_size + border_height))
+            elif move[2] == 'capture':
+                window.blit(
+                    available_capture_img, (move[1] * sqr_size + border_width, move[0] * sqr_size + border_height))
+
 
 class Rook(Piece):
-	def available_moves(self, board):
-		moves = []
+    def available_moves(self, board):
+        moves = []
 
-		for y in range(self.y + 1, 8):
-			if board[y][self.x] == None:
-				moves.append((y, self.x))
-			else:
-				break
+        for y in range(self.y + 1, 8):
+            if board[y][self.x] == None:
+                moves.append((y, self.x, 'move'))
+            elif board[y][self.x].color != self.color:
+                moves.append((y, self.x, 'capture'))
+                break
 
-		for y in range(self.y - 1, -1, -1):
-			if board[y][self.x] == None:
-				moves.append((y, self.x))
-			else:
-				break
+        for y in range(self.y - 1, -1, -1):
+            if board[y][self.x] == None:
+                moves.append((y, self.x, 'move'))
+            elif board[y][self.x].color != self.color:
+                moves.append((y, self.x, 'capture'))
+                break
 
-		for x in range(self.x + 1, 8):
-			if board[self.y][x] == None:
-				moves.append((self.y, x))
-			else:
-				break
+        for x in range(self.x + 1, 8):
+            if board[self.y][x] == None:
+                moves.append((self.y, x, 'move'))
+            elif board[self.y][x].color != self.color:
+                moves.append((self.y, x, 'capture'))
+                break
 
-		for x in range(self.x - 1, -1, -1):
-			if board[self.y][x] == None:
-				moves.append((self.y, x))
-			else:
-				break
+        for x in range(self.x - 1, -1, -1):
+            if board[self.y][x] == None:
+                moves.append((self.y, x, 'move'))
+            elif board[self.y][x].color != self.color:
+                moves.append((self.y, x, 'capture'))
+                break
 
-		return moves
+        return moves
+
 
 class Knight(Piece):
-	def available_moves(self, board):
-		moves = []
-		# I'm too lazy to develop an algorithm for this...
-		hardcoded_moves = [
-			(self.y + 2, self.x - 1),
-			(self.y + 2, self.x + 1),
+    def available_moves(self, board):
+        moves = []
+        # I'm too lazy to develop an algorithm for this...
+        hardcoded_moves = [
+            (self.y + 2, self.x - 1),
+            (self.y + 2, self.x + 1),
 
-			(self.y - 1, self.x + 2),
-			(self.y + 1, self.x + 2),
+            (self.y - 1, self.x + 2),
+            (self.y + 1, self.x + 2),
 
-			(self.y - 2, self.x + 1),
-			(self.y - 2, self.x - 1),
+            (self.y - 2, self.x + 1),
+            (self.y - 2, self.x - 1),
 
-			(self.y + 1, self.x - 2),
-			(self.y - 1, self.x - 2)
-		]
+            (self.y + 1, self.x - 2),
+            (self.y - 1, self.x - 2)
+        ]
 
-		for move in hardcoded_moves:
-			if (move[0] <= 7 and move[0] >= 0) and (move[1] <= 7 and move[1] >= 0):
-				if board[move[0]][move[1]] == None:
-					moves.append(move)
+        for move in hardcoded_moves:
+            if (move[0] <= 7 and move[0] >= 0) and (move[1] <= 7 and move[1] >= 0):
+                if board[move[0]][move[1]] == None:
+                    moves.append(move)
 
-		return moves
+        return moves
+
 
 class Bishop(Piece):
-	def available_moves(self, board):
-		moves = []
+    def available_moves(self, board):
+        moves = []
 
-		y = self.y - 1
-		x = self.x - 1
-		while y >= 0 and x >= 0:
-			if board[y][x] == None:
-				moves.append((y, x))
-			else:
-				break
+        y = self.y - 1
+        x = self.x - 1
+        while y >= 0 and x >= 0:
+            if board[y][x] == None:
+                moves.append((y, x))
+            else:
+                break
 
-			y -= 1
-			x -= 1
+            y -= 1
+            x -= 1
 
-		y = self.y + 1
-		x = self.x + 1
-		while y <= 7 and x <= 7:
-			if board[y][x] == None:
-				moves.append((y, x))
-			else:
-				break
+        y = self.y + 1
+        x = self.x + 1
+        while y <= 7 and x <= 7:
+            if board[y][x] == None:
+                moves.append((y, x))
+            else:
+                break
 
-			y += 1
-			x += 1
+            y += 1
+            x += 1
 
-		y = self.y + 1
-		x = self.x - 1
-		while y <= 7 and x >= 0:
-			if board[y][x] == None:
-				moves.append((y, x))
-			else:
-				break
+        y = self.y + 1
+        x = self.x - 1
+        while y <= 7 and x >= 0:
+            if board[y][x] == None:
+                moves.append((y, x))
+            else:
+                break
 
-			y += 1
-			x -= 1
+            y += 1
+            x -= 1
 
-		y = self.y - 1
-		x = self.x + 1
-		while y >= 0 and x <= 7:
-			if board[y][x] == None:
-				moves.append((y, x))
-			else:
-				break
+        y = self.y - 1
+        x = self.x + 1
+        while y >= 0 and x <= 7:
+            if board[y][x] == None:
+                moves.append((y, x))
+            else:
+                break
 
-			y -= 1
-			x += 1
+            y -= 1
+            x += 1
 
-		return moves
+        return moves
+
 
 class Queen(Piece):
-	def available_moves(self, board):
-		moves = []
+    def available_moves(self, board):
+        moves = []
 
-		rook = Rook(self.y, self.x, 'rook', self.color)
-		bishop = Bishop(self.y, self.x, 'bishop', self.color)
+        rook = Rook(self.y, self.x, 'rook', self.color)
+        bishop = Bishop(self.y, self.x, 'bishop', self.color)
 
-		moves.extend(rook.available_moves(board))
-		moves.extend(bishop.available_moves(board))
+        moves.extend(rook.available_moves(board))
+        moves.extend(bishop.available_moves(board))
 
-		return moves
+        return moves
+
 
 class King(Piece):
-	def available_moves(self, board):
-		moves = []
+    def available_moves(self, board):
+        moves = []
 
-		# I'm too lazy to code an algorithm here...
-		hardcoded_moves = [
-			(self.y - 1, self.x),
-			(self.y + 1, self.x),
-			(self.y, self.x - 1),
-			(self.y, self.x + 1),
+        # I'm too lazy to code an algorithm here...
+        hardcoded_moves = [
+            (self.y - 1, self.x),
+            (self.y + 1, self.x),
+            (self.y, self.x - 1),
+            (self.y, self.x + 1),
 
-			(self.y + 1, self.x - 1),
-			(self.y + 1, self.x + 1),
-			(self.y - 1, self.x + 1),
-			(self.y - 1, self.x - 1)
-		]
+            (self.y + 1, self.x - 1),
+            (self.y + 1, self.x + 1),
+            (self.y - 1, self.x + 1),
+            (self.y - 1, self.x - 1)
+        ]
 
-		for move in hardcoded_moves:
-			if (move[0] <= 7 and move[0] >= 0) and (move[1] <= 7 and move[1] >= 0):
-				if board[move[0]][move[1]] == None:
-					moves.append(move)
+        for move in hardcoded_moves:
+            if (move[0] <= 7 and move[0] >= 0) and (move[1] <= 7 and move[1] >= 0):
+                if board[move[0]][move[1]] == None:
+                    moves.append(move)
 
-		return moves
+        return moves
+
 
 class Pawn(Piece):
-	def available_moves(self, board):
-		moves = []
-		direction = 1
+    def available_moves(self, board):
+        moves = []
+        direction = 1
 
-		if self.color == 'white':
-			direction = -direction
+        if self.color == 'white':
+            direction = -direction
 
-		if self.y + direction >=0 and self.y + direction <= 7:
-			if board[self.y + direction][self.x] == None:
-				moves.append((self.y + direction, self.x))
+        if self.y + direction >= 0 and self.y + direction <= 7:
+            if board[self.y + direction][self.x] == None:
+                moves.append((self.y + direction, self.x))
 
-		if self.color == 'white':
-			if self.y == 6 and board[self.y - 2][self.x] == None:
-				moves.append((self.y - 2, self.x))
-		elif self.color == 'black':
-			if self.y == 1 and board[self.y + 2][self.x] == None:
-				moves.append((self.y + 2, self.x))
+        if self.color == 'white':
+            if self.y == 6 and board[self.y - 2][self.x] == None:
+                moves.append((self.y - 2, self.x))
+        elif self.color == 'black':
+            if self.y == 1 and board[self.y + 2][self.x] == None:
+                moves.append((self.y + 2, self.x))
 
-		return moves
+        return moves
+
 
 pieces = [
-	Rook(0, 0, 'rook', 'black'),
-	Rook(0, 7, 'rook', 'black'),
-	Rook(7, 0, 'rook', 'white'),
-	Rook(7, 7, 'rook', 'white'),
+    Rook(0, 0, 'rook', 'black'),
+    Rook(0, 7, 'rook', 'black'),
+    Rook(7, 0, 'rook', 'white'),
+    Rook(7, 7, 'rook', 'white'),
 
-	Knight(0, 1, 'knight', 'black'),
-	Knight(0, 6, 'knight', 'black'),
-	Knight(7, 1, 'knight', 'white'),
-	Knight(7, 6, 'knight', 'white'),
+    # Knight(0, 1, 'knight', 'black'),
+    # Knight(0, 6, 'knight', 'black'),
+    # Knight(7, 1, 'knight', 'white'),
+    # Knight(7, 6, 'knight', 'white'),
 
-	Bishop(0, 2, 'bishop', 'black'),
-	Bishop(0, 5, 'bishop', 'black'),
-	Bishop(7, 2, 'bishop', 'white'),
-	Bishop(7, 5, 'bishop', 'white'),
+    # Bishop(0, 2, 'bishop', 'black'),
+    # Bishop(0, 5, 'bishop', 'black'),
+    # Bishop(7, 2, 'bishop', 'white'),
+    # Bishop(7, 5, 'bishop', 'white'),
 
-	Queen(0, 3, 'queen', 'black'),
-	Queen(7, 3, 'queen', 'white'),
+    # Queen(0, 3, 'queen', 'black'),
+    # Queen(7, 3, 'queen', 'white'),
 
-	King(0, 4, 'king', 'black'),
-	King(7, 4, 'king', 'white')
+    # King(0, 4, 'king', 'black'),
+    # King(7, 4, 'king', 'white')
 ]
 
-for p in range(0, 8):
-	pieces.append(Pawn(1, p, 'pawn', 'black'))
-	pieces.append(Pawn(6, p, 'pawn', 'white'))
+# for p in range(0, 8):
+#     pieces.append(Pawn(1, p, 'pawn', 'black'))
+#     pieces.append(Pawn(6, p, 'pawn', 'white'))
 
 board = []
+turn = 'white'
 
 for y in range(0, 8):
-	board.append([])
-	for x in range(0, 8):
-		board[y].append(None)
+    board.append([])
+    for x in range(0, 8):
+        board[y].append(None)
 
 for piece in pieces:
-	board[piece.y][piece.x] = piece
+    board[piece.y][piece.x] = piece
 
 running = True
 while running:
-	event = None
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			running = False
+    event = None
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
 
-	window.blit(board_img, (0, 0))
+    window.blit(board_img, (0, 0))
 
-	for piece in pieces:
-		piece.draw(board)
+    for piece in pieces:
+        piece.draw(board)
 
-	for piece in pieces:
-		piece.update(event, board)
+    for piece in pieces:
+        piece.update(event, board)
 
-	pygame.display.update()
+    pygame.display.update()
 
 pygame.quit()
