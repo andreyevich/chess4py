@@ -296,17 +296,21 @@ class Pawn(Piece):
         if self.color == 'white':
             if self.y - 1 >= 0 and self.x - 1 >= 0:
                 if board[self.y - 1][self.x - 1] != None:
-                    moves.append((self.y - 1, self.x - 1, 'capture'))
-            if self.y - 1 >= 0 and self.x + 1 >= 0:
+                    if board[self.y - 1][self.x - 1].color != self.color:
+                        moves.append((self.y - 1, self.x - 1, 'capture'))
+            if self.y - 1 >= 0 and self.x + 1 <= 7:
                 if board[self.y - 1][self.x + 1] != None:
-                    moves.append((self.y - 1, self.x + 1, 'capture'))
+                    if board[self.y - 1][self.x + 1].color != self.color:
+                        moves.append((self.y - 1, self.x + 1, 'capture'))
         elif self.color == 'black':
-            if self.y + 1 >= 0 and self.x - 1 >= 0:
+            if self.y + 1 <= 7 and self.x - 1 >= 0:
                 if board[self.y + 1][self.x - 1] != None:
-                    moves.append((self.y + 1, self.x - 1, 'capture'))
-            if self.y + 1 >= 0 and self.x + 1 >= 0:
+                    if board[self.y + 1][self.x - 1].color != self.color:
+                        moves.append((self.y + 1, self.x - 1, 'capture'))
+            if self.y + 1 <= 7 and self.x + 1 <= 7:
                 if board[self.y + 1][self.x + 1] != None:
-                    moves.append((self.y + 1, self.x + 1, 'capture'))
+                    if board[self.y + 1][self.x + 1]:
+                        moves.append((self.y + 1, self.x + 1, 'capture'))
 
         return moves
 
