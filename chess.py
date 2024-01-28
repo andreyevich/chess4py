@@ -110,12 +110,16 @@ class Rook(Piece):
             elif board[y][self.x].color != self.color:
                 moves.append((y, self.x, 'capture'))
                 break
+            else:
+                break
 
         for y in range(self.y - 1, -1, -1):
             if board[y][self.x] == None:
                 moves.append((y, self.x, 'move'))
             elif board[y][self.x].color != self.color:
                 moves.append((y, self.x, 'capture'))
+                break
+            else:
                 break
 
         for x in range(self.x + 1, 8):
@@ -124,12 +128,16 @@ class Rook(Piece):
             elif board[self.y][x].color != self.color:
                 moves.append((self.y, x, 'capture'))
                 break
+            else:
+                break
 
         for x in range(self.x - 1, -1, -1):
             if board[self.y][x] == None:
                 moves.append((self.y, x, 'move'))
             elif board[self.y][x].color != self.color:
                 moves.append((self.y, x, 'capture'))
+                break
+            else:
                 break
 
         return moves
@@ -156,7 +164,9 @@ class Knight(Piece):
         for move in hardcoded_moves:
             if (move[0] <= 7 and move[0] >= 0) and (move[1] <= 7 and move[1] >= 0):
                 if board[move[0]][move[1]] == None:
-                    moves.append(move)
+                    moves.append((move[0], move[1], 'move'))
+                elif board[move[0]][move[1]].color != self.color:
+                    moves.append((move[0], move[1], 'capture'))
 
         return moves
 
@@ -169,7 +179,10 @@ class Bishop(Piece):
         x = self.x - 1
         while y >= 0 and x >= 0:
             if board[y][x] == None:
-                moves.append((y, x))
+                moves.append((y, x, 'move'))
+            elif board[y][x].color != self.color:
+                moves.append((y, x, 'capture'))
+                break
             else:
                 break
 
@@ -180,7 +193,10 @@ class Bishop(Piece):
         x = self.x + 1
         while y <= 7 and x <= 7:
             if board[y][x] == None:
-                moves.append((y, x))
+                moves.append((y, x, 'move'))
+            elif board[y][x].color != self.color:
+                moves.append((y, x, 'capture'))
+                break
             else:
                 break
 
@@ -191,7 +207,10 @@ class Bishop(Piece):
         x = self.x - 1
         while y <= 7 and x >= 0:
             if board[y][x] == None:
-                moves.append((y, x))
+                moves.append((y, x, 'move'))
+            elif board[y][x].color != self.color:
+                moves.append((y, x, 'capture'))
+                break
             else:
                 break
 
@@ -202,7 +221,10 @@ class Bishop(Piece):
         x = self.x + 1
         while y >= 0 and x <= 7:
             if board[y][x] == None:
-                moves.append((y, x))
+                moves.append((y, x, 'move'))
+            elif board[y][x].color != self.color:
+                moves.append((y, x, 'capture'))
+                break
             else:
                 break
 
@@ -245,7 +267,9 @@ class King(Piece):
         for move in hardcoded_moves:
             if (move[0] <= 7 and move[0] >= 0) and (move[1] <= 7 and move[1] >= 0):
                 if board[move[0]][move[1]] == None:
-                    moves.append(move)
+                    moves.append((move[0], move[1], 'move'))
+                elif board[move[0]][move[1]].color != self.color:
+                    moves.append((move[0], move[1], 'capture'))
 
         return moves
 
@@ -260,14 +284,29 @@ class Pawn(Piece):
 
         if self.y + direction >= 0 and self.y + direction <= 7:
             if board[self.y + direction][self.x] == None:
-                moves.append((self.y + direction, self.x))
+                moves.append((self.y + direction, self.x, 'move'))
 
         if self.color == 'white':
             if self.y == 6 and board[self.y - 2][self.x] == None:
-                moves.append((self.y - 2, self.x))
+                moves.append((self.y - 2, self.x, 'move'))
         elif self.color == 'black':
             if self.y == 1 and board[self.y + 2][self.x] == None:
-                moves.append((self.y + 2, self.x))
+                moves.append((self.y + 2, self.x, 'move'))
+
+        if self.color == 'white':
+            if self.y - 1 >= 0 and self.x - 1 >= 0:
+                if board[self.y - 1][self.x - 1] != None:
+                    moves.append((self.y - 1, self.x - 1, 'capture'))
+            if self.y - 1 >= 0 and self.x + 1 >= 0:
+                if board[self.y - 1][self.x + 1] != None:
+                    moves.append((self.y - 1, self.x + 1, 'capture'))
+        elif self.color == 'black':
+            if self.y + 1 >= 0 and self.x - 1 >= 0:
+                if board[self.y + 1][self.x - 1] != None:
+                    moves.append((self.y + 1, self.x - 1, 'capture'))
+            if self.y + 1 >= 0 and self.x + 1 >= 0:
+                if board[self.y + 1][self.x + 1] != None:
+                    moves.append((self.y + 1, self.x + 1, 'capture'))
 
         return moves
 
@@ -278,26 +317,26 @@ pieces = [
     Rook(7, 0, 'rook', 'white'),
     Rook(7, 7, 'rook', 'white'),
 
-    # Knight(0, 1, 'knight', 'black'),
-    # Knight(0, 6, 'knight', 'black'),
-    # Knight(7, 1, 'knight', 'white'),
-    # Knight(7, 6, 'knight', 'white'),
+    Knight(0, 1, 'knight', 'black'),
+    Knight(0, 6, 'knight', 'black'),
+    Knight(7, 1, 'knight', 'white'),
+    Knight(7, 6, 'knight', 'white'),
 
-    # Bishop(0, 2, 'bishop', 'black'),
-    # Bishop(0, 5, 'bishop', 'black'),
-    # Bishop(7, 2, 'bishop', 'white'),
-    # Bishop(7, 5, 'bishop', 'white'),
+    Bishop(0, 2, 'bishop', 'black'),
+    Bishop(0, 5, 'bishop', 'black'),
+    Bishop(7, 2, 'bishop', 'white'),
+    Bishop(7, 5, 'bishop', 'white'),
 
-    # Queen(0, 3, 'queen', 'black'),
-    # Queen(7, 3, 'queen', 'white'),
+    Queen(0, 3, 'queen', 'black'),
+    Queen(7, 3, 'queen', 'white'),
 
-    # King(0, 4, 'king', 'black'),
-    # King(7, 4, 'king', 'white')
+    King(0, 4, 'king', 'black'),
+    King(7, 4, 'king', 'white')
 ]
 
-# for p in range(0, 8):
-#     pieces.append(Pawn(1, p, 'pawn', 'black'))
-#     pieces.append(Pawn(6, p, 'pawn', 'white'))
+for p in range(0, 8):
+    pieces.append(Pawn(1, p, 'pawn', 'black'))
+    pieces.append(Pawn(6, p, 'pawn', 'white'))
 
 board = []
 turn = 'white'
